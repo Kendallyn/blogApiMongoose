@@ -15,6 +15,7 @@ const {
 const app = express();
 app.use(bodyParser.json());
 
+
 app.get('/posts', (req, res) => {
     BlogPost.find().exec()
         .then(posts => {
@@ -29,7 +30,6 @@ app.get('/posts', (req, res) => {
     });
 });
 
-
 app.get('/posts/:id', (req, res) => {
     BlogPost.findById(req.params.id).exec().then(post => res.json(post.apiRepr()))
         .catch(err => {
@@ -39,7 +39,6 @@ app.get('/posts/:id', (req, res) => {
             });
         });
 });
-
 
 app.post('/posts', (req, res) => {
     const requiredFields = ['title', 'content', 'author'];
@@ -51,6 +50,7 @@ app.post('/posts', (req, res) => {
             return res.status(400).send(message);
         }
     }
+
     BlogPost.create({
             title: req.body.title,
             content: req.body.content,
@@ -63,6 +63,7 @@ app.post('/posts', (req, res) => {
             });
         });
 });
+
 app.put('/post/:id', (req, res) => {
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         res.status(400).json({
@@ -76,21 +77,31 @@ app.put('/post/:id', (req, res) => {
             updated[field] = req.body[field];
         }
     });
-
-    BlogPost.findByIdAndUpdate(req.params.id {
+    BlogPost
+        .findByIdAndUpdate(req.params.id {
             $set: updated
         }, {
             new: true
-        }).exec()
+        })
+        .exec()
         .then(updatedPost => res.status(201).json(updatedPost.apiRepr()))
         .catch(err => res.status(500).json({
             message: 'Internal server error'
         }));
 });
-app.delete('/posts/', (req, res) {
-    BlogPost.findByIdAndRemove(req.params.id).exec().then(console.log(`Deleted blog post with id \`${req.params.ID}\``); res.status(204).end();
-    });
+
+
+app.delete('/:id', (req, res) => {
+    BlogPosts
+        .findByIdAndRemove(req.params.id)
+        .exec()
+        .then(() => {
+            console.log(`Deleted blog post with id \`${req.params.ID}\``);
+            res.status(204).end();
+        });
 });
+
+
 app.use('*', function (req, res) {
     res.status(404).json({
         message: 'Not Found'
